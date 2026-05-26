@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fazendinha Agrinho - Modo Simulação</title>
+    <title>Fazendinha Agrinho - Ultimate Farming Edition</title>
     <style>
         * { box-sizing: border-box; user-select: none; image-rendering: pixelated; }
         body { margin: 0; padding: 0; background-color: #1a2e10; font-family: 'Courier New', Courier, monospace; overflow: hidden; color: #fff; }
@@ -20,7 +20,7 @@
         .btn-ui:active { border-bottom-width: 2px; margin-top: 6px; margin-bottom: -2px; }
 
         #adm-trigger { position: absolute; top: 15px; right: 15px; background: #006600; color: #fff; border: 3px solid #33ff33; padding: 8px 12px; font-weight: bold; font-size: 12px; cursor: pointer; z-index: 200; text-transform: uppercase; }
-        #adm-panel { display: none; position: absolute; top: 60px; right: 15px; background: #111611; border: 4px solid #33ff33; padding: 12px; z-index: 200; width: 300px; color: #00ff00; }
+        #adm-panel { display: none; position: absolute; top: 60px; right: 15px; background: #111611; border: 4px solid #33ff33; padding: 12px; z-index: 200; width: 320px; color: #00ff00; max-height: 80vh; overflow-y: auto; }
         .adm-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; font-size: 11px; }
         .adm-input { width: 50%; background: #222; border: 1px solid #33ff33; color: #00ff00; padding: 2px; font-family: inherit; }
 
@@ -37,7 +37,7 @@
         .character { position: absolute; width: 50px; height: 50px; font-size: 24px; z-index: 10; border: 3px solid #1a110b; display: flex; align-items: center; justify-content: center; }
         .npc-label { position: absolute; top: -24px; background: #1c120c; color: #f4ecd8; padding: 2px 5px; border: 2px solid #573b24; font-size: 9px; font-weight: bold; white-space: nowrap; }
         
-        #farm-zones { position: absolute; top: 220px; left: 340px; display: flex; flex-wrap: wrap; gap: 6px; max-width: calc(100vw - 380px); z-index: 5; }
+        #farm-zones { position: absolute; top: 220px; left: 340px; display: flex; flex-wrap: wrap; gap: 6px; max-width: calc(100vw - 380px); z-index: 5; max-height: 65vh; overflow-y: auto; padding: 10px; }
         .plot { width: 68px; height: 68px; background: #422a18; border: 4px solid #26170c; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         
         .crop { font-size: 28px; display: flex; flex-direction: column; align-items: center; }
@@ -47,15 +47,16 @@
         .m-frozen { filter: drop-shadow(0px 0px 4px #70c5ff) hue-rotate(140deg); }
         .m-divine { filter: drop-shadow(0px 0px 6px #ff00ff) brightness(1.3); }
         .m-radioactive { filter: drop-shadow(0px 0px 5px #39ff14) saturate(2); }
+        .m-infernal { filter: drop-shadow(0px 0px 5px #ff3300) contrast(1.3); }
         
         .timer-bar { position: absolute; bottom: 2px; left: 2px; width: calc(100% - 4px); height: 4px; background: #111; }
         .timer-fill { height: 100%; width: 0%; background: #38b349; }
 
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #291c12; border: 4px solid #543a24; padding: 16px; z-index: 200; width: 90%; max-width: 500px; color: #f4ecd8; box-shadow: 0 8px 0 #000; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #291c12; border: 4px solid #543a24; padding: 16px; z-index: 200; width: 90%; max-width: 540px; color: #f4ecd8; box-shadow: 0 8px 0 #000; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #402b1b; padding-bottom: 4px; margin-bottom: 8px; }
         .close-btn { background: #912323; color: white; border: 2px solid #4a1212; padding: 2px 6px; cursor: pointer; font-family: inherit; }
         
-        .shop-grid { display: grid; grid-template-columns: 1fr; gap: 4px; }
+        .shop-grid { display: grid; grid-template-columns: 1fr; gap: 4px; max-height: 50vh; overflow-y: auto; }
         .shop-item { display: flex; align-items: center; justify-content: space-between; padding: 6px; border: 2px solid #3d281a; background: #21160e; font-size: 11px; }
         .buy-btn { background: #2b5c16; color: white; border: 2px solid #142e09; padding: 3px 6px; cursor: pointer; font-family: inherit; font-weight: bold; }
     </style>
@@ -63,24 +64,24 @@
 <body>
 
     <div id="ui-top">
-        <h2>🌾 Simulador de Fazenda Agrinho</h2>
+        <h2>🌾 Fazenda Ricas Mutações - Agrinho</h2>
         <div class="bar-container">
             <div id="xp-bar" class="xp-fill"></div>
             <div id="xp-text" class="bar-text">XP Agrícola: 0 / 100 (Nível 1)</div>
         </div>
-        <p><span>🪙 Dinheiro:</span> <span id="coin-count">150</span></p>
-        <p><span>🌱 Selecionado:</span> <span id="selected-seed-text">Mão Vazia</span></p>
-        <button class="btn-ui" onclick="openBackpack()">🎒 Abrir Mochila [Espaço]</button>
-        <button class="btn-ui" id="btn-buy-plot" onclick="buyNewPlot()" style="background:#c27f38; border-color:#6e4215;">🟫 Comprar Lote de Terra (<span id="plot-cost">200</span> 🪙)</button>
+        <p><span>🪙 Moedas do Campo:</span> <span id="coin-count">150</span></p>
+        <p><span>🌱 Item Equipado:</span> <span id="selected-seed-text">Mão Vazia</span></p>
+        <button class="btn-ui" onclick="openBackpackModal()">🎒 Ver Bolsa & Mutadores [Espaço]</button>
+        <button class="btn-ui" id="btn-buy-plot" onclick="buyNewPlot()" style="background:#c27f38; border-color:#6e4215;">🟫 Expandir Lotes de Terra (<span id="plot-cost">200</span> 🪙)</button>
     </div>
 
-    <button id="adm-trigger" onclick="tryAccessAdm()">🛠️ Hack Agrário</button>
+    <button id="adm-trigger" onclick="tryAccessAdm()">🛠️ Painel Bio-Hack</button>
     <div id="adm-panel">
-        <h3>Modificar Fazenda</h3>
-        <button class="buy-btn" style="width:100%; background:#00ff00; color:#000; margin-bottom:8px;" onclick="aplicarADM()">⚡ Salvar Alterações</button>
+        <h3>Modificação de Ecossistema</h3>
+        <button class="buy-btn" style="width:100%; background:#00ff00; color:#000; margin-bottom:8px;" onclick="aplicarAlteracoesADM()">⚡ Aplicar Bio-Hacks</button>
         <div class="adm-row"><label>🪙 Moedas:</label><input type="number" id="adm-coins" class="adm-input" value="150"></div>
-        <div class="adm-row"><label>⭐ Nível:</label><input type="number" id="adm-lvl" class="adm-input" value="1"></div>
-        <div class="adm-row"><label>🟫 Lotes:</label><input type="number" id="adm-plots" class="adm-input" value="3"></div>
+        <div class="adm-row"><label>⭐ Nível Fazendeiro:</label><input type="number" id="adm-lvl" class="adm-input" value="1"></div>
+        <div class="adm-row"><label>🟫 Total Lotes (Max 40):</label><input type="number" id="adm-plots" class="adm-input" value="3"></div>
     </div>
 
     <div id="hotbar-container">
@@ -88,12 +89,17 @@
         <div class="hotbar-slot" id="slot-1" onclick="selectSlot(1)"><span class="slot-num">2</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
         <div class="hotbar-slot" id="slot-2" onclick="selectSlot(2)"><span class="slot-num">3</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
         <div class="hotbar-slot" id="slot-3" onclick="selectSlot(3)"><span class="slot-num">4</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
+        <div class="hotbar-slot" id="slot-4" onclick="selectSlot(4)"><span class="slot-num">5</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
+        <div class="hotbar-slot" id="slot-5" onclick="selectSlot(5)"><span class="slot-num">6</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
+        <div class="hotbar-slot" id="slot-6" onclick="selectSlot(6)"><span class="slot-num">7</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
+        <div class="hotbar-slot" id="slot-7" onclick="selectSlot(7)"><span class="slot-num">8</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
     </div>
 
     <div id="game-canvas">
         <div id="player" style="top: 250px; left: 200px;">🧑‍🌾</div>
         <div id="npc-tiao" class="character" style="top: 25px; left: 360px; background: #2f4560;">🏪<span class="npc-label">Tião (Sementes) [E]</span></div>
-        <div id="npc-chico" class="character" style="top: 25px; left: 540px; background: #7a431d;">👨‍💼<span class="npc-label">Chico (Comprador) [E]</span></div>
+        <div id="npc-mago" class="character" style="top: 25px; left: 540px; background: #50287a;">🧙‍♂️<span class="npc-label">Mago Alquimista [E]</span></div>
+        <div id="npc-chico" class="character" style="top: 25px; left: 720px; background: #7a431d;">👨‍💼<span class="npc-label">Chico Exportador [E]</span></div>
         <div id="farm-zones"></div>
     </div>
 
@@ -104,22 +110,29 @@
 
     <script>
         let player = { x: 200, y: 250, speed: 5, lvl: 1, xp: 0, nextXp: 100 };
-        let gameState = { coins: 150, maxPlots: 3, activeHotbarSlot: 0, admUnlocked: false };
-        let hotbar = Array(4).fill(null).map(() => ({ id: null, qty: 0, type: '', data: null }));
+        let gameState = { coins: 150, maxPlots: 3, activeHotbarSlot: 0, admUnlocked: false, fertilizanteAtivo: false };
+        
+        let hotbar = Array(8).fill(null).map(() => ({ id: null, qty: 0, type: '', data: null }));
         let plots = [];
         let keysPressed = {};
 
+        // Restaurado o ecossistema completo de 6 Frutas
         const fruitData = {
-            maca: { name: "Maçã", icon: "🍎", basePrice: 15, time: 4 },
-            banana: { name: "Banana", icon: "🍌", basePrice: 20, time: 6 },
-            cenoura: { name: "Cenoura", icon: "🥕", basePrice: 22, time: 5 },
-            melancia: { name: "Melancia", icon: "🍉", basePrice: 80, time: 15 }
+            maca: { name: "Maçã", icon: "🍎", basePrice: 15, time: 4, weightMin: 0.3 },
+            banana: { name: "Banana", icon: "🍌", basePrice: 20, time: 6, weightMin: 0.2 },
+            cenoura: { name: "Cenoura", icon: "🥕", basePrice: 22, time: 5, weightMin: 0.15 },
+            laranja: { name: "Laranja", icon: "🍊", basePrice: 25, time: 8, weightMin: 0.4 },
+            melancia: { name: "Melancia", icon: "🍉", basePrice: 80, time: 18, weightMin: 3.5 },
+            uva: { name: "Uva Cósmica", icon: "🍇", basePrice: 115, time: 24, weightMin: 0.2 }
         };
 
+        // Restaurado as 5 Mutações Raras originais
         const mutationConfig = {
             golden: { label: "Dourada ✨", mult: 3.0, class: "m-golden" },
-            frozen: { label: "Congelada ❄️", mult: 2.0, class: "m-frozen" },
-            divine: { label: "Divina 🌌", mult: 5.0, class: "m-divine" }
+            frozen: { label: "Congelada ❄️", mult: 2.2, class: "m-frozen" },
+            divine: { label: "Divina 🌌", mult: 6.0, class: "m-divine" },
+            radioactive: { label: "Radioativa ☢️", mult: 4.5, class: "m-radioactive" },
+            infernal: { label: "Infernal 🔥", mult: 7.0, class: "m-infernal" }
         };
 
         function init() {
@@ -130,7 +143,8 @@
             setInterval(() => {
                 plots.forEach(plot => {
                     if (plot.status === 'growing') {
-                        plot.timer -= 0.1;
+                        // Se o fertilizante alquímico estiver ativo, cresce 2x mais rápido
+                        plot.timer -= gameState.fertilizanteAtivo ? 0.2 : 0.1;
                         let totalTime = fruitData[plot.fruit].time;
                         let progress = Math.min(((totalTime - plot.timer) / totalTime) * 100, 100);
                         let fillBar = plot.element.querySelector('.timer-fill');
@@ -142,45 +156,54 @@
 
             window.addEventListener('keydown', e => {
                 keysPressed[e.key.toLowerCase()] = true;
-                if (e.code === 'Space') { e.preventDefault(); openBackpack(); }
-                if (['1','2','3','4'].includes(e.key)) selectSlot(parseInt(e.key) - 1);
+                if (document.activeElement.tagName === 'INPUT') return;
+                if (e.code === 'Space') { e.preventDefault(); openBackpackModal(); }
+                if (['1','2','3','4','5','6','7','8'].includes(e.key)) selectSlot(parseInt(e.key) - 1);
                 if (e.key.toLowerCase() === 'e') handleNPCDetection();
             });
+
             window.addEventListener('keyup', e => { delete keysPressed[e.key.toLowerCase()]; });
 
             gameLoop();
         }
 
         function tryAccessAdm() {
-            if (gameState.admUnlocked || prompt("Senha ADM:") === "agrinho2026") {
-                gameState.admUnlocked = true;
-                let p = document.getElementById('adm-panel');
-                p.style.display = p.style.display === 'block' ? 'none' : 'block';
+            if (gameState.admUnlocked) {
+                let panel = document.getElementById('adm-panel');
+                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+            } else {
+                if (prompt("Digite o código de acesso de laboratório:") === "agrinho2026") {
+                    gameState.admUnlocked = true;
+                    document.getElementById('adm-panel').style.display = 'block';
+                } else { alert("Acesso negado!"); }
             }
         }
 
-        function aplicarADM() {
+        function aplicarAlteracoesADM() {
             gameState.coins = parseInt(document.getElementById('adm-coins').value) || 0;
             player.lvl = parseInt(document.getElementById('adm-lvl').value) || 1;
-            gameState.maxPlots = Math.min(parseInt(document.getElementById('adm-plots').value) || 3, 20);
+            gameState.maxPlots = Math.min(parseInt(document.getElementById('adm-plots').value) || 3, 40);
             createPlots(); updateUI();
         }
 
         function buyNewPlot() {
-            let cost = 200 + (gameState.maxPlots * 150);
-            if (gameState.coins >= cost) { gameState.coins -= cost; gameState.maxPlots++; createPlots(); updateUI(); }
+            if (gameState.maxPlots >= 40) return alert("Capacidade de lotes máxima atingida!");
+            let cost = 200 + (gameState.maxPlots * 180);
+            if (gameState.coins >= cost) {
+                gameState.coins -= cost; gameState.maxPlots++; createPlots(); updateUI();
+            } else alert("Moedas insuficientes!");
         }
 
         function createPlots() {
             const container = document.getElementById('farm-zones'); container.innerHTML = '';
-            plots = [];
+            let oldPlots = [...plots]; plots = [];
             for(let i = 0; i < gameState.maxPlots; i++) {
                 let plotDiv = document.createElement('div'); plotDiv.className = 'plot'; container.appendChild(plotDiv);
-                plots.push({ element: plotDiv, status: 'empty', fruit: null, timer: 0, mutations: [] });
-                plotDiv.innerHTML = `<span style="color:#26170c; font-size:9px;">Terra</span>`;
-                plotDiv.onclick = () => handlePlotInteraction(i);
+                if (oldPlots[i]) { plots.push(oldPlots[i]); plots[i].element = plotDiv; if (plots[i].status !== 'empty') renderPlotAsset(plots[i]); }
+                else { plots.push({ element: plotDiv, status: 'empty', fruit: null, timer: 0, mutations: [], weight: 1.0 }); plotDiv.innerHTML = `<span style="color:#26170c; font-size:8px; position:absolute; bottom:2px;">Terra</span>`; }
             }
-            document.getElementById('plot-cost').innerText = 200 + (gameState.maxPlots * 150);
+            plots.forEach((p, idx) => p.element.onclick = () => handlePlotInteraction(idx));
+            document.getElementById('plot-cost').innerText = 200 + (gameState.maxPlots * 180);
         }
 
         function renderPlotAsset(plot) {
@@ -193,68 +216,154 @@
             }
         }
 
-        function handlePlotInteraction(idx) {
-            let plot = plots[idx]; let active = hotbar[gameState.activeHotbarSlot];
-            if (plot.status === 'empty' && active && active.type === 'semente') {
-                plot.status = 'growing'; plot.fruit = active.id; plot.timer = fruitData[active.id].time;
-                if (Math.random() < 0.15) plot.mutations.push('golden');
-                active.qty--; if(active.qty <= 0) hotbar[gameState.activeHotbarSlot] = { id: null, qty: 0, type: '' };
+        function handlePlotInteraction(index) {
+            let plot = plots[index]; let activeItem = hotbar[gameState.activeHotbarSlot];
+
+            if (plot.status === 'empty' && activeItem && activeItem.type === 'semente' && activeItem.qty > 0) {
+                plot.status = 'growing'; plot.fruit = activeItem.id;
+                plot.timer = fruitData[plot.fruit].time;
+                plot.mutations = [];
+
+                // Sistema de chances de mutação biológica restaurado
+                let rand = Math.random();
+                if (rand < 0.02) plot.mutations.push('infernal');
+                else if (rand < 0.05) plot.mutations.push('divine');
+                else if (rand < 0.10) plot.mutations.push('radioactive');
+                else if (rand < 0.18) plot.mutations.push('golden');
+                else if (rand < 0.25) plot.mutations.push('frozen');
+
+                // Sistema de pesos complexos
+                plot.weight = parseFloat((Math.random() * 1.5 + fruitData[plot.fruit].weightMin).toFixed(2));
+                
+                activeItem.qty--;
+                if (activeItem.qty <= 0) hotbar[gameState.activeHotbarSlot] = { id: null, qty: 0, type: '', data: null };
                 renderPlotAsset(plot); updateUI(); updateHotbarVisuals();
-            } else if (plot.status === 'ready') {
-                let mult = 1; plot.mutations.forEach(m => mult *= mutationConfig[m].mult);
-                addItem('fruta', plot.fruit, fruitData[plot.fruit].basePrice * mult, fruitData[plot.fruit].icon);
-                plot.status = 'empty'; plot.fruit = null; plot.element.innerHTML = `<span style="color:#26170c; font-size:9px;">Terra</span>`;
-                player.xp += 20; if(player.xp >= player.nextXp) { player.xp = 0; player.lvl++; player.nextXp *= 1.5; }
+            } 
+            else if (plot.status === 'ready') {
+                let finalMult = 1.0;
+                plot.mutations.forEach(m => { finalMult *= mutationConfig[m].mult; });
+
+                let calculatedPrice = fruitData[plot.fruit].basePrice * finalMult * plot.weight;
+                let finalName = `${fruitData[plot.fruit].name} ${plot.mutations.length > 0 ? '['+mutationConfig[plot.mutations[0]].label+']' : ''} (${plot.weight}kg)`;
+
+                addItemToHotbar(plot.fruit, 'fruta', { icon: fruitData[plot.fruit].icon, price: calculatedPrice, fullName: finalName });
+
+                // Ganho de XP Agrícola
+                player.xp += Math.floor(20 * finalMult);
+                if (player.xp >= player.nextXp) {
+                    player.xp -= player.nextXp; player.lvl++; player.nextXp = Math.floor(player.nextXp * 1.4);
+                }
+
+                plot.status = 'empty'; plot.fruit = null; plot.element.innerHTML = `<span style="color:#26170c; font-size:8px; position:absolute; bottom:2px;">Terra</span>`;
                 updateUI();
             }
         }
 
-        function addItem(type, id, price, icon) {
-            let slot = hotbar.find(s => s.id === id && s.type === type);
-            if (!slot) slot = hotbar.find(s => s.id === null);
-            if (slot) { slot.id = id; slot.type = type; slot.qty++; slot.data = { price, icon }; }
+        function addItemToHotbar(id, type, dataBlock) {
+            let slot = null;
+            if (type === 'semente') {
+                slot = hotbar.find(s => s.id === id && s.type === 'semente');
+            }
+            if (!slot) {
+                slot = hotbar.find(s => s.id === null);
+            }
+            if (slot) {
+                slot.id = id; slot.type = type; slot.qty = (slot.qty || 0) + 1; slot.data = dataBlock;
+            }
             updateHotbarVisuals();
         }
 
         function updateHotbarVisuals() {
-            for(let i=0; i<4; i++) {
-                let s = document.getElementById(`slot-${i}`);
-                if (hotbar[i].id) { s.querySelector('.slot-icon').innerText = hotbar[i].data.icon; s.querySelector('.slot-qty').innerText = 'x'+hotbar[i].qty; }
-                else { s.querySelector('.slot-icon').innerText = ''; s.querySelector('.slot-qty').innerText = ''; }
+            for (let i = 0; i < 8; i++) {
+                let slot = document.getElementById(`slot-${i}`); let item = hotbar[i];
+                if (item && item.id) {
+                    slot.querySelector('.slot-icon').innerText = item.data?.icon || "🌱";
+                    slot.querySelector('.slot-qty').innerText = "x" + item.qty;
+                } else { slot.querySelector('.slot-icon').innerText = ''; slot.querySelector('.slot-qty').innerText = ''; }
             }
         }
 
         function handleNPCDetection() {
-            if (Math.sqrt(Math.pow(player.x - 360, 2) + Math.pow(player.y - 25, 2)) < 60) openShop('tiao');
-            if (Math.sqrt(Math.pow(player.x - 540, 2) + Math.pow(player.y - 25, 2)) < 60) openShop('chico');
+            if (Math.sqrt(Math.pow(player.x - 360, 2) + Math.pow(player.y - 25, 2)) < 65) openNPCModal('tiao');
+            else if (Math.sqrt(Math.pow(player.x - 540, 2) + Math.pow(player.y - 25, 2)) < 65) openNPCModal('mago');
+            else if (Math.sqrt(Math.pow(player.x - 720, 2) + Math.pow(player.y - 25, 2)) < 65) openNPCModal('chico');
         }
 
-        function openShop(npc) {
-            document.getElementById('game-modal').style.display = 'block';
+        function openNPCModal(npc) {
+            let modal = document.getElementById('game-modal'); modal.style.display = 'block';
             let content = document.getElementById('modal-content'); content.innerHTML = '';
+            
             if (npc === 'tiao') {
-                document.getElementById('modal-title').innerText = "Loja do Tião";
+                document.getElementById('modal-title').innerText = "Mercado Agrícola do Tião";
                 Object.keys(fruitData).forEach(k => {
-                    content.innerHTML += `<div class="shop-item"><div>🌱 Semente de ${fruitData[k].name} (10🪙)</div><button class="buy-btn" onclick="buySeed('${k}')">Comprar</button></div>`;
+                    content.innerHTML += `<div class="shop-item"><div>🌱 Semente de ${fruitData[k].name} (Custo: 10 🪙)</div><button class="buy-btn" onclick="buySeed('${k}')">Adquirir</button></div>`;
                 });
-            } else {
-                document.getElementById('modal-title').innerText = "Vendas Chico";
-                let total = 0; hotbar.forEach(s => { if(s.type === 'fruta') total += s.data.price * s.qty; });
-                content.innerHTML = `<p>Valor da carga da mochila: ${total} Moedas</p><button class="buy-btn" onclick="sellAll(${total})">Vender Tudo</button>`;
+            } 
+            else if (npc === 'mago') {
+                document.getElementById('modal-title').innerText = "Mago Alquimista da Biologia";
+                content.innerHTML = `<p>O Mago usa as energias místicas para acelerar o tempo do seu ecossistema celular.</p>
+                <div class="shop-item"><div>🧪 Soro do Hipercrescimento (Crescimento 2x mais rápido global)</div>
+                <button class="buy-btn" style="background:#50287a;" onclick="ativarSuperFertilizante()">Comprar (150 🪙)</button></div>`;
+            } 
+            else if (npc === 'chico') {
+                document.getElementById('modal-title').innerText = "Chico - Exportação & Balança";
+                let totalValor = 0;
+                hotbar.forEach(i => { if (i && i.type === 'fruta') totalValor += i.data.price * i.qty; });
+                content.innerHTML = `<p>Análise da carga atual da sua Bolsa:</p>
+                <div style="background:#111; padding:8px; font-size:10px; margin-bottom:10px;">`;
+                hotbar.forEach(i => { if(i && i.type === 'fruta') content.innerHTML += `▪️ ${i.data.fullName} x${i.qty} -> 🪙 ${Math.floor(i.data.price*i.qty)}<br>`; });
+                content.innerHTML += `</div><h4>Total a receber: 🪙 ${Math.floor(totalValor)}</h4>
+                <button class="buy-btn" style="width:100%;" onclick="venderTudoParaChico(${totalValor})">Descarregar e Vender Produtos</button>`;
             }
         }
 
-        function buySeed(k) { if(gameState.coins >= 10) { gameState.coins -= 10; addItem('semente', k, 10, fruitData[k].icon); updateUI(); } }
-        function sellAll(val) { gameState.coins += val; hotbar.fill(null).map(() => ({ id: null, qty: 0, type: '' })); updateHotbarVisuals(); closeModal(); updateUI(); }
-        function openBackpack() { document.getElementById('game-modal').style.display = 'block'; document.getElementById('modal-title').innerText = "Sua Mochila"; let c = document.getElementById('modal-content'); c.innerHTML = '<p>Itens rápidos alocados na barra inferior.</p>'; }
+        function buySeed(k) {
+            if(gameState.coins >= 10) { 
+                gameState.coins -= 10; 
+                addItemToHotbar(k, 'semente', { icon: "🌱" }); 
+                updateUI(); 
+            } else alert("Falta de fundos monetários!");
+        }
+
+        function ativarSuperFertilizante() {
+            if(gameState.coins >= 150) {
+                gameState.coins -= 150; gameState.fertilizanteAtivo = true;
+                alert("🔮 O Mago canalizou um feitiço nas suas terras! Culturas crescendo com o dobro de velocidade!");
+                closeModal(); updateUI();
+            } else alert("Falta de moedas para o feitiço!");
+        }
+
+        function venderTudoParaChico(valor) {
+            gameState.coins += valor;
+            hotbar = hotbar.map(i => i && i.type === 'fruta' ? { id: null, qty: 0, type: '', data: null } : i);
+            updateHotbarVisuals(); closeModal(); updateUI();
+        }
+
+        function openBackpackModal() {
+            let modal = document.getElementById('game-modal'); modal.style.display = 'block';
+            document.getElementById('modal-title').innerText = "Bolsa do Fazendeiro";
+            let content = document.getElementById('modal-content'); content.innerHTML = `<h3>Inventário de Mão</h3>`;
+            hotbar.forEach((i, index) => {
+                if (i && i.id) {
+                    content.innerHTML += `<div class="shop-item"><div>[Slot ${index+1}] ${i.type==='semente'?'Semente de ':''}<b>${i.data?.fullName || i.id}</b> (Qtd: ${i.qty})</div></div>`;
+                }
+            });
+        }
+
         function closeModal() { document.getElementById('game-modal').style.display = 'none'; }
-        function selectSlot(i) { gameState.activeHotbarSlot = i; document.querySelectorAll('.hotbar-slot').forEach((s, idx) => s.classList.toggle('selected', idx === i)); updateUI(); }
+        function selectSlot(index) {
+            gameState.activeHotbarSlot = index;
+            document.querySelectorAll('.hotbar-slot').forEach((s, idx) => s.classList.toggle('selected', idx === index));
+            updateUI();
+        }
 
         function gameLoop() {
-            if (keysPressed['w']) player.y -= player.speed;
-            if (keysPressed['s']) player.y += player.speed;
-            if (keysPressed['a']) player.x -= player.speed;
-            if (keysPressed['d']) player.x += player.speed;
+            if (document.activeElement.tagName !== 'INPUT') {
+                if (keysPressed['w'] || keysPressed['arrowup']) player.y -= player.speed;
+                if (keysPressed['s'] || keysPressed['arrowdown']) player.y += player.speed;
+                if (keysPressed['a'] || keysPressed['arrowleft']) player.x -= player.speed;
+                if (keysPressed['d'] || keysPressed['arrowright']) player.x += player.speed;
+            }
             player.x = Math.max(0, Math.min(window.innerWidth - 45, player.x));
             player.y = Math.max(0, Math.min(window.innerHeight - 120, player.y));
             document.getElementById('player').style.left = player.x+'px';
@@ -263,12 +372,13 @@
         }
 
         function updateUI() {
-            document.getElementById('coin-count').innerText = gameState.coins;
+            document.getElementById('coin-count').innerText = Math.floor(gameState.coins);
             document.getElementById('xp-bar').style.width = `${(player.xp / player.nextXp) * 100}%`;
             document.getElementById('xp-text').innerText = `XP Agrícola: ${player.xp} / ${player.nextXp} (Nível ${player.lvl})`;
-            let act = hotbar[gameState.activeHotbarSlot];
-            document.getElementById('selected-seed-text').innerText = act && act.id ? `${act.type === 'semente'?'Semente de ':''}${fruitData[act.id].name}` : 'Mão Vazia';
+            let item = hotbar[gameState.activeHotbarSlot];
+            document.getElementById('selected-seed-text').innerText = item && item.id ? (item.type === 'semente' ? `Semente de ${fruitData[item.id].name}` : item.data.fullName) : 'Mão Vazia';
         }
+
         window.onload = init;
     </script>
 </body>
